@@ -1,0 +1,30 @@
+# --- Secrets / environment ---
+.env
+*.env
+!*.env.example      # keep the example template
+demo/.env
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Local project files: kept on disk, NOT shared in the repo ---
+# (the slide deck and the workflow/scenario notes used to build this demo)
+slides/
+ARTIFACTOR.md
+artifactor.yaml
+SCENARIO.md
+example.md
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
