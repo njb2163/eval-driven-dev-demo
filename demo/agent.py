@@ -4,11 +4,12 @@ Deliberately minimal — one Anthropic chat call, a system prompt, no tools. We 
 a cheap, fast model (Haiku) on purpose: it's quick to run live and easy enough to
 break that the regression in the talk actually shows up.
 
-There are two system prompts:
+There are three system prompts:
   V1 — the original four requirements.
-  V2 — V1 plus the greedy edit the client's allergen request triggers.
-Everything else is identical, so any score change between V1 and V2 is caused by
-that one added line.
+  V2 — V1 plus the greedy allergen edit (a clinical "Allergen notice:" line).
+  V3 — V1 plus a graceful allergen note; the fix the evals point you toward.
+Everything else is identical, so any score change between versions is caused by
+that one added rule.
 """
 
 from anthropic import Anthropic
@@ -49,7 +50,20 @@ ALLERGEN_RULE = (
 
 SYSTEM_PROMPT_V2 = SYSTEM_PROMPT_V1 + ALLERGEN_RULE
 
-PROMPTS = {"v1": SYSTEM_PROMPT_V1, "v2": SYSTEM_PROMPT_V2}
+# V3 — the iterated fix. Same allergen requirement, satisfied with a brief, natural
+# note instead of a clinical disclaimer, so the blurb stays short, appetizing, and
+# on-brand. This is what "adapting to a new requirement" looks like once you let the
+# evals guide the next prompt edit (see dataset_v3.py + evals_v3.py).
+ALLERGEN_RULE_V3 = (
+    "\n- If the dish contains nuts, dairy, or gluten, end with a brief, natural "
+    "allergen note such as 'Contains dairy.' or 'Contains nuts, dairy.' Keep it "
+    "short and keep the whole blurb appetizing and on-brand — never a long or "
+    "clinical disclaimer. Stay within the 20-word limit including the note."
+)
+
+SYSTEM_PROMPT_V3 = SYSTEM_PROMPT_V1 + ALLERGEN_RULE_V3
+
+PROMPTS = {"v1": SYSTEM_PROMPT_V1, "v2": SYSTEM_PROMPT_V2, "v3": SYSTEM_PROMPT_V3}
 
 
 def write_description(dish, version: str = "v1") -> str:

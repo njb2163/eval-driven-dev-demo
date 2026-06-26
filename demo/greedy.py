@@ -28,6 +28,6 @@ def main(version: str) -> None:
 
 if __name__ == "__main__":
     version = sys.argv[1] if len(sys.argv) > 1 else "v1"
-    if version not in ("v1", "v2"):
-        sys.exit("usage: python greedy.py [v1|v2]")
+    if version not in ("v1", "v2", "v3"):
+        sys.exit("usage: python greedy.py [v1|v2|v3]")
     main(version)

@@ -107,9 +107,10 @@ def score_appetizing(description: str) -> ScoreResult:
         "You rate menu descriptions on how appetizing they are, 1-5. "
         "5 = mouth-watering and sensory, you want to order it immediately. "
         "1 = flat, clinical, or off-putting. "
-        "A tacked-on disclaimer or 'allergen notice' sentence is a clinical "
-        "interruption that kills the craving — if the description contains one, "
-        "rate it no higher than 2."
+        "A brief, natural allergen note (e.g. 'Contains dairy.') is fine — do NOT "
+        "penalize it. But a long or formal disclaimer, like an 'Allergen notice: "
+        "...' sentence, reads like a warning label and kills the craving — rate "
+        "those no higher than 2."
     )
     return _judge(system, f"Menu description: {description}")
 
@@ -119,9 +120,10 @@ def score_brand_voice(description: str) -> ScoreResult:
     system = (
         "You rate menu descriptions on brand voice for a cozy neighborhood "
         "bistro, 1-5. 5 = warm, playful, inviting. 1 = corporate, clinical, or "
-        "cold. A tacked-on disclaimer or 'allergen notice' sentence reads like "
-        "legal boilerplate and breaks the cozy voice — if the description "
-        "contains one, rate it no higher than 2."
+        "cold. A brief, natural allergen note (e.g. 'Contains dairy.') is fine. "
+        "But a long or formal disclaimer, like an 'Allergen notice: ...' "
+        "sentence, reads like legal boilerplate and breaks the cozy voice — rate "
+        "those no higher than 2."
     )
     return _judge(system, f"Menu description: {description}")
 
@@ -130,12 +132,11 @@ def score_reference_match(description: str, dish) -> ScoreResult:
     """Ground-truth judge: how close is the output to the golden reference?"""
     system = (
         "You compare a generated menu description to a GOLDEN reference written "
-        "by the client. Rate 1-5 how well the generated one matches the "
-        "reference's quality, content, and style. 5 = as good as the reference "
-        "and covers the same appeal. 1 = far off in tone, length, or content. "
-        "The reference is short, single-sentence, and contains NO disclaimer. "
-        "Penalize the generated one heavily if it adds a disclaimer/notice the "
-        "reference lacks or is noticeably longer or more clinical."
+        "by the client — the gold standard for this dish. Rate 1-5 how well the "
+        "generated one matches the reference's quality, content, length, and "
+        "style, including how it handles (or omits) an allergen note. 5 = as good "
+        "as the reference and covers the same appeal. 1 = far off in tone, length, "
+        "or content."
     )
     content = (
         f"Golden reference: {dish.reference}\n"
