@@ -6,6 +6,16 @@ regresses requirements you weren't looking at.
 
 See the top-level `README.md` for an overview.
 
+## Start here — the narrative
+
+These two docs are the story this code tells. Read or skim them before diving into
+the files:
+
+- **[`docs/scenario-brief.md`](docs/scenario-brief.md)** — the client brief: who
+  The Copper Spoon is, and what "good" means (the requirements).
+- **[`docs/walkthrough-script.md`](docs/walkthrough-script.md)** — a step-by-step,
+  narrated walkthrough of the code in the order to read (or present) it.
+
 ## Setup
 
 ```bash
@@ -41,6 +51,14 @@ The scorecard shows the truth: `allergen_callout` went up, but `appetizing`,
 `length_ok`, and `reference_match` quietly went **down**. We fixed one thing and
 broke three. That silent regression — invisible to step 2 — is what evals catch.
 
+**4. Adapt to the new requirement — and prove the fix.**
+```bash
+python evals_v3.py
+```
+Update the ground truth (`dataset_v3.py`) and the prompt (`SYSTEM_PROMPT_V3`), then
+score `V1 → V2 → V3` against the updated bar. V3 satisfies the allergen requirement
+*and* recovers the dimensions V2 broke — with evals proving it, not guesswork.
+
 ## The files
 
 | File | What it is |
@@ -50,6 +68,8 @@ broke three. That silent regression — invisible to step 2 — is what evals ca
 | `scoring.py` | Six scorers — deterministic, LLM-judge, and ground-truth — all returning `(score, reason)`. |
 | `greedy.py` | The no-evals workflow: generate and print, no measurement. |
 | `evals.py` | The eval suite: score both prompt versions across all dimensions, print the V1→V2 scorecard. |
+| `dataset_v3.py` | Updated ground truth after allergens became a requirement — the references `V3` targets. |
+| `evals_v3.py` | The fix: score `V1 → V2 → V3` against the updated ground truth. |
 
 ## Dimensions
 
