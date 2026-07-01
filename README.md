@@ -1,39 +1,73 @@
-# Eval-Driven Development — demo
+# The Copper Spoon — eval-driven development demo
 
-A minimal, runnable demo of **eval-driven development** for LLM systems: instead of
-editing a prompt whenever a new problem appears and eyeballing a few outputs, you
-score the system against a fixed set of requirements on every change.
+A minimal, runnable walkthrough of eval-driven development. A menu-blurb agent for
+a bistro, scored across six dimensions, showing how a greedy prompt edit silently
+regresses requirements you weren't looking at.
 
-The example is a menu-description writer for a fictional bistro, "The Copper Spoon."
-It's scored across six dimensions using three techniques — deterministic checks,
-LLM-as-judge, and ground-truth comparison. A single greedy prompt edit (adding an
-allergen callout) then shows how fixing one requirement can silently regress
-others — a regression only the eval suite reveals.
+## Start here — the narrative
 
-## Quick start
+These two docs are the story this code tells. Read or skim them before diving into
+the files:
+
+- **[`demo/docs/scenario-brief.md`](demo/docs/scenario-brief.md)** — the client
+  brief: who The Copper Spoon is, and what "good" means (the requirements).
+- **[`demo/docs/walkthrough-script.md`](demo/docs/walkthrough-script.md)** — a
+  step-by-step, narrated walkthrough of the code in the order to read (or present) it.
+
+## Setup
 
 ```bash
 cd demo
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env        # add your ANTHROPIC_API_KEY
-
-python greedy.py v1         # the naive workflow: generate, eyeball, "ship it"
-python greedy.py v2         # after a greedy "add allergens" prompt edit
-python evals.py             # the reveal: a V1 -> V2 scorecard across all dimensions
+cp .env.example .env        # then put your real ANTHROPIC_API_KEY in .env
 ```
 
-You'll need an Anthropic API key. The demo uses `claude-haiku-4-5` (cheap and fast).
+Model: `claude-haiku-4-5` (cheap, fast, easy to break — chosen on purpose).
 
-## Files (in `demo/`)
+## The walkthrough
+
+**1. The greedy approach — eyeball the output, ship it.**
+```bash
+python greedy.py v1
+```
+Nice blurbs. Looks done.
+
+**2. The client adds a requirement:** *"call out allergens (nuts, dairy, gluten)."*
+We greedily bolt one line onto the system prompt — that's `SYSTEM_PROMPT_V2` in
+`agent.py` (the only difference from V1). Re-run and eyeball:
+```bash
+python greedy.py v2
+```
+Allergens are listed now. Greedy workflow says: ship it. ✅
+
+**3. Run the evals — measure every dimension at once.**
+```bash
+python evals.py
+```
+The scorecard shows the truth: `allergen_callout` went up, but `appetizing`,
+`length_ok`, and `reference_match` quietly went **down**. We fixed one thing and
+broke three. That silent regression — invisible to step 2 — is what evals catch.
+
+**4. Adapt to the new requirement — and prove the fix.**
+```bash
+python evals_v3.py
+```
+Update the ground truth (`dataset_v3.py`) and the prompt (`SYSTEM_PROMPT_V3`), then
+score `V1 → V2 → V3` against the updated bar. V3 satisfies the allergen requirement
+*and* recovers the dimensions V2 broke — with evals proving it, not guesswork.
+
+## The files (in `demo/`)
 
 | File | What it is |
 |------|------------|
-| `agent.py` | The system under test — one Anthropic call, a system prompt, no tools. `V1` + the greedy `V2`. |
-| `dataset.py` | The eval dataset + ground-truth "golden" references. |
-| `scoring.py` | Six scorers (deterministic, LLM-judge, ground-truth), all returning `(score, reason)`. |
+| `agent.py` | The system under test — one Anthropic call, a system prompt, no tools. `V1` + the greedy `V2` + the fixed `V3`. |
+| `dataset.py` | The eval dataset + **ground-truth** golden references. |
+| `scoring.py` | Six scorers — deterministic, LLM-judge, and ground-truth — all returning `(score, reason)`. |
 | `greedy.py` | The no-evals workflow: generate and print, no measurement. |
-| `evals.py` | The eval suite: score both prompt versions across all dimensions, print the scorecard. |
+| `evals.py` | The eval suite: score both prompt versions across all dimensions, print the V1→V2 scorecard. |
+| `dataset_v3.py` | Updated ground truth after allergens became a requirement — the references `V3` targets. |
+| `evals_v3.py` | The fix: score `V1 → V2 → V3` against the updated ground truth. |
 
 ## Dimensions
 
